@@ -40,8 +40,8 @@ docker_network_{{ nw.name }}:
   - replace: True
   - makedirs: True
   - mode: {{ file.mode | default(744) }}
-  - contents: |
-      {{ file.get("contents") }}
+  - template: jinja
+  - contents_pillar: docker_prometheus:{{ app.name }}:supporting_files{{ rowloop.index }}:contents
 {% endfor %}
 
 #

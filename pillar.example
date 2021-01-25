@@ -13,7 +13,7 @@ docker_prometheus:
     supporting_files:
       - name: prometheus.yml
         mode: '744'
-        context: |
+        contents: |
           {%- raw %}
           # my global config
           global:
@@ -91,7 +91,7 @@ docker_prometheus:
 
       - name: prometheus-alert.rules
         mode: '744'
-        context: |
+        contents: |
           {%- raw %}
           groups:
           - name: example
