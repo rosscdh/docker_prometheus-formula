@@ -1,0 +1,7 @@
+{%- set app_config = pillar.get('docker_prometheus').get(app.name) %}
+#
+# Managed by salt docker_prometheus
+#
+{%- for key, value in app_config.get('env', {}).items() %}
+{{ key }}={{ value }}
+{%- endfor %}
