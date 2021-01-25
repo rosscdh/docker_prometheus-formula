@@ -245,6 +245,7 @@ docker_prometheus:
             pagerduty_configs:
             - service_key: <team-DB-key>
           {%- endraw %}
+
     env:
       GF_SECURITY_ADMIN_PASSWORD: 'password1234'
       GF_USERS_ALLOW_SIGN_UP: false
@@ -314,7 +315,7 @@ docker_prometheus:
           ports:
             - 9093:9093
           volumes:
-            - ./alertmanager/alertmanager-config.yml:/etc/alertmanager/config.yml
+            - ./alertmanager-config.yml:/etc/alertmanager/config.yml
           networks:
             - prom-back-tier
           restart: always
@@ -347,7 +348,7 @@ docker_prometheus:
           depends_on:
             - prometheus
           ports:
-            - 3000:3000
+            - 3010:3000
           volumes:
             - grafana_data:/var/lib/grafana
             - ./grafana/provisioning/:/etc/grafana/provisioning/
