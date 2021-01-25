@@ -140,8 +140,8 @@ docker_prometheus:
             - service_key: <team-DB-key>
 
     env:
-      ENV_VAR: value
-      ENV_VAR_B: value_b
+      GF_SECURITY_ADMIN_PASSWORD: 'password1234'
+      GF_USERS_ALLOW_SIGN_UP: false
 
     docker_compose_yaml: |
       version: '3.7'
@@ -245,7 +245,7 @@ docker_prometheus:
             - grafana_data:/var/lib/grafana
             - ./grafana/provisioning/:/etc/grafana/provisioning/
           env_file:
-            - ./grafana/config.monitoring
+            - ./.env
           networks:
             - prom-back-tier
             - front-tier
