@@ -54,7 +54,6 @@ docker_prometheus:
                   - targets: ['localhost:9090']
 
             - job_name: 'cadvisor'
-
               # Override the global default and scrape targets from this job every 5 seconds.
               scrape_interval: 5s
 
@@ -63,12 +62,10 @@ docker_prometheus:
                 - 'tasks.cadvisor'
                 type: 'A'
                 port: 8080
-
-          #     static_configs:
-          #          - targets: ['cadvisor:8080']
+              static_configs:
+                - targets: ['cadvisor:8080']
 
             - job_name: 'node-exporter'
-
               # Override the global default and scrape targets from this job every 5 seconds.
               scrape_interval: 5s
 
@@ -77,6 +74,8 @@ docker_prometheus:
                 - 'tasks.node-exporter'
                 type: 'A'
                 port: 9100
+              static_configs:
+                - targets: ['node-exporter:9100']
 
             - job_name: 'pushgateway'
               scrape_interval: 10s
@@ -85,8 +84,8 @@ docker_prometheus:
                 - 'tasks.pushgateway'
                 type: 'A'
                 port: 9091
-                static_configs:
-                 - targets: ['node-exporter:9100']
+              static_configs:
+               - targets: ['pushgateway:9091']
           {%- endraw %}
 
       - name: prometheus-alert.rules
@@ -128,7 +127,7 @@ docker_prometheus:
             smtp_auth_password: 'password'
 
           # The directory from which notification templates are read.
-          templates: 
+          templates:
           - '/etc/alertmanager/template/*.tmpl'
 
           # The root route on which each incoming alert enters.
@@ -147,7 +146,7 @@ docker_prometheus:
             # When a new group of alerts is created by an incoming alert, wait at
             # least 'group_wait' to send the initial notification.
             # This way ensures that you get multiple alerts for the same group that start
-            # firing shortly after another are batched together on the first 
+            # firing shortly after another are batched together on the first
             # notification.
             group_wait: 30s
 
@@ -157,12 +156,12 @@ docker_prometheus:
 
             # If an alert has successfully been sent, wait 'repeat_interval' to
             # resend them.
-            repeat_interval: 3h 
+            repeat_interval: 3h
 
             # A default receiver
             receiver: team-X-mails
 
-            # All the above attributes are inherited by all child routes and can 
+            # All the above attributes are inherited by all child routes and can
             # overwritten on each.
 
             # The child route trees.
@@ -207,7 +206,7 @@ docker_prometheus:
 
           # Inhibition rules allow to mute a set of alerts given that another alert is
           # firing.
-          # We use this to mute any warning-level notifications if the same alert is 
+          # We use this to mute any warning-level notifications if the same alert is
           # already critical.
           inhibit_rules:
           - source_match:
@@ -215,8 +214,8 @@ docker_prometheus:
             target_match:
               severity: 'warning'
             # Apply inhibition if the alertname is the same.
-            # CAUTION: 
-            #   If all label names listed in `equal` are missing 
+            # CAUTION:
+            #   If all label names listed in `equal` are missing
             #   from both the source and target alerts,
             #   the inhibition rule will apply!
             equal: ['alertname', 'cluster', 'service']
@@ -247,7 +246,7 @@ docker_prometheus:
           {%- endraw %}
 
     env:
-      GF_SECURITY_ADMIN_PASSWORD: 'password1234'
+      GF_SECURITY_ADMIN_PASSWORD: 'password123'
       GF_USERS_ALLOW_SIGN_UP: false
 
     docker_compose_yaml: |
@@ -267,7 +266,7 @@ docker_prometheus:
           image: prom/prometheus:v2.1.0
           volumes:
             - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
-            - ./alert.rules:/etc/prometheus/alert.rules:ro
+            - ./prometheus-alert.rules:/etc/prometheus/alert.rules:ro
             - prometheus_data:/prometheus
           command:
             - '--config.file=/etc/prometheus/prometheus.yml'
@@ -297,13 +296,13 @@ docker_prometheus:
             - /proc:/host/proc:ro
             - /sys:/host/sys:ro
             - /:/rootfs:ro
-          command: 
-            - '--path.procfs=/host/proc' 
+          command:
+            - '--path.procfs=/host/proc'
             - '--path.sysfs=/host/sys'
             - --collector.filesystem.ignored-mount-points
             - "^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)"
-          ports:
-            - 9100:9100
+          #ports:
+          #  - 9100:9100
           networks:
             - prom-back-tier
           restart: always
@@ -315,7 +314,7 @@ docker_prometheus:
           ports:
             - 9093:9093
           volumes:
-            - ./alertmanager-config.yml:/etc/alertmanager/config.yml
+            - ./alertmanager-config.yml:/etc/alertmanager/config.yml:ro
           networks:
             - prom-back-tier
           restart: always
@@ -334,8 +333,8 @@ docker_prometheus:
             - /var/run:/var/run:rw
             - /sys:/sys:ro
             - /var/lib/docker/:/var/lib/docker:ro
-          ports:
-            - 8080:8080
+          #ports:
+          #  - 8080:8080
           networks:
             - prom-back-tier
           restart: always
