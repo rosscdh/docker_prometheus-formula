@@ -116,6 +116,7 @@ docker_prometheus:
                 summary: "Instance {{ $labels.instance }} under high load"
                 description: "{{ $labels.instance }} of job {{ $labels.job }} is under high load."
           {%- endraw %}
+
       - name: alertmanager-config.yml
         mode: '744'
         contents: |
@@ -315,7 +316,7 @@ docker_prometheus:
           ports:
             - 9093:9093
           volumes:
-            - ./alertmanager-config.yml:/etc/alertmanager/config.yml
+            - ./alertmanager-config.yml:/etc/alertmanager/config.yml:ro
           networks:
             - prom-back-tier
           restart: always
